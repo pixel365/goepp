@@ -1,0 +1,16 @@
+vendor/
+bin/
+build/
+
+*.out
+*.log
+*.tgz
+*.txt
+*.xml
+!**/*/*.xml
+!**/*/testdata/*.xml
+.env
+*.cnf
+!self-signed.dev.cnf
+*.crt
+*.key
