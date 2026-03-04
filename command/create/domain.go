@@ -18,12 +18,14 @@ const (
 )
 
 type Domain struct {
-	Period     *Period
-	NS         *DomainNS
-	Name       string
-	Registrant string
-	AuthInfo   command.AuthInfo
-	Contacts   []DomainContact
+	Period      *Period
+	NS          *DomainNS
+	Name        string
+	Punycode    string
+	Registrant  string
+	AuthInfo    command.AuthInfo
+	Contacts    []DomainContact
+	HasPunycode bool
 }
 
 type Period struct {
@@ -96,6 +98,8 @@ func (d *Domain) Validate() error {
 	}
 
 	d.Name = name.Normalized
+	d.Punycode = name.ASCII
+	d.HasPunycode = name.HasPunycode
 
 	if d.AuthInfo.Password == "" {
 		return errors.New("domain:authInfo/domain:pw is required")
