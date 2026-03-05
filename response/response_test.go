@@ -19,7 +19,7 @@ func TestNewResponse_MarshalUnmarshal(t *testing.T) {
 	require.NoError(t, xml.Unmarshal(data, &parsed))
 
 	require.Len(t, parsed.Response.Results, 1)
-	assert.Equal(t, 1000, parsed.Response.Results[0].Code)
+	assert.Equal(t, CodeCommandCompletedSuccessfully, parsed.Response.Results[0].Code)
 	assert.Equal(t, CommandCompletedSuccessfully, parsed.Response.Results[0].Message)
 	assert.False(t, parsed.Response.Results[0].IsError())
 
@@ -39,9 +39,9 @@ func TestNewResponse_EmptyMsg_UsesDefaultMessage(t *testing.T) {
 	require.NoError(t, xml.Unmarshal(data, &parsed))
 
 	require.Len(t, parsed.Response.Results, 1)
-	assert.Equal(t, 2002, parsed.Response.Results[0].Code)
+	assert.Equal(t, CodeCommandUseError, parsed.Response.Results[0].Code)
 	assert.NotEmpty(t, parsed.Response.Results[0].Message)
-	assert.Equal(t, defaultMessage(2002), parsed.Response.Results[0].Message)
+	assert.Equal(t, MessageForCode(2002), parsed.Response.Results[0].Message)
 
 	for _, result := range parsed.Response.Results {
 		assert.True(t, result.IsError())
@@ -111,10 +111,10 @@ func TestSetResults_CheckMessageApplied(t *testing.T) {
 	require.NoError(t, xml.Unmarshal(data, &parsed))
 
 	require.Len(t, parsed.Response.Results, 2)
-	assert.Equal(t, 2002, parsed.Response.Results[0].Code)
-	assert.Equal(t, defaultMessage(2002), parsed.Response.Results[0].Message)
+	assert.Equal(t, CodeCommandUseError, parsed.Response.Results[0].Code)
+	assert.Equal(t, MessageForCode(2002), parsed.Response.Results[0].Message)
 
-	assert.Equal(t, 2400, parsed.Response.Results[1].Code)
+	assert.Equal(t, CodeCommandFailed, parsed.Response.Results[1].Code)
 	assert.Equal(t, "Custom error", parsed.Response.Results[1].Message)
 
 	for _, result := range parsed.Response.Results {
@@ -133,11 +133,11 @@ func TestAppendResults_CheckMessageApplied(t *testing.T) {
 	require.NoError(t, xml.Unmarshal(data, &parsed))
 
 	require.Len(t, parsed.Response.Results, 2)
-	assert.Equal(t, 2001, parsed.Response.Results[0].Code)
+	assert.Equal(t, CodeCommandSyntaxError, parsed.Response.Results[0].Code)
 	assert.Equal(t, CommandSyntaxError, parsed.Response.Results[0].Message)
 
-	assert.Equal(t, 2002, parsed.Response.Results[1].Code)
-	assert.Equal(t, defaultMessage(2002), parsed.Response.Results[1].Message)
+	assert.Equal(t, CodeCommandUseError, parsed.Response.Results[1].Code)
+	assert.Equal(t, MessageForCode(2002), parsed.Response.Results[1].Message)
 
 	for _, result := range parsed.Response.Results {
 		assert.True(t, result.IsError())

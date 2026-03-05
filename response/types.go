@@ -1,13 +1,13 @@
 package response
 
 type Result struct {
-	Message string `xml:",chardata"`
-	Code    int    `xml:"code,attr"`
+	Message string       `xml:",chardata"`
+	Code    ResponseCode `xml:"code,attr"`
 }
 
 func (r *Result) CheckMessage() {
 	if r.Message == "" {
-		r.Message = defaultMessage(r.Code)
+		r.Message = MessageForCode(r.Code)
 	}
 }
 

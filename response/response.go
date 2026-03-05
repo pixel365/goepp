@@ -21,7 +21,7 @@ type Response[RD, E any] struct {
 	Results       []Result       `xml:"result"`
 }
 
-func NewResponse[R, E any](code int, msg string) *EPPResponse[R, E] {
+func NewResponse[R, E any](code ResponseCode, msg string) *EPPResponse[R, E] {
 	result := Result{Code: code, Message: msg}
 	result.CheckMessage()
 

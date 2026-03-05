@@ -20,7 +20,7 @@ func TestAnyError(t *testing.T) {
 	require.NoError(t, xml.Unmarshal(data, &parsed))
 	require.Len(t, parsed.Response.Results, 1)
 
-	assert.Equal(t, 2002, parsed.Response.Results[0].Code)
+	assert.Equal(t, CodeCommandUseError, parsed.Response.Results[0].Code)
 	assert.Equal(t, CommandUseError, parsed.Response.Results[0].Message)
 	assert.Nil(t, parsed.Response.ResData)
 	assert.Nil(t, parsed.Response.Extensions)
@@ -72,7 +72,7 @@ func TestDefaultMessage(t *testing.T) {
 		t.Run(
 			fmt.Sprintf("code_%d", tt.code),
 			func(t *testing.T) {
-				assert.Equal(t, tt.expected, defaultMessage(tt.code))
+				assert.Equal(t, tt.expected, MessageForCode(ResponseCode(tt.code)))
 			},
 		)
 	}

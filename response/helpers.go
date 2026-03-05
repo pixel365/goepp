@@ -1,5 +1,44 @@
 package response
 
+type ResponseCode int
+
+const (
+	CodeCommandCompletedSuccessfully                  ResponseCode = 1000
+	CodeCommandCompletedSuccessfullyWithActionPending ResponseCode = 1001
+	CodeCommandCompleteSuccessfullyWithNoMessages     ResponseCode = 1300
+	CodeCommandCompleteSuccessfullyAckToDequeue       ResponseCode = 1301
+	CodeCommandCompleteSuccessfullyEndingSession      ResponseCode = 1500
+	CodeUnknownCommand                                ResponseCode = 2000
+	CodeCommandSyntaxError                            ResponseCode = 2001
+	CodeCommandUseError                               ResponseCode = 2002
+	CodeRequiredParameterMissing                      ResponseCode = 2003
+	CodeParameterValueRangeError                      ResponseCode = 2004
+	CodeParameterValueSyntaxError                     ResponseCode = 2005
+	CodeUnimplementedProtocolVersion                  ResponseCode = 2100
+	CodeUnimplementedCommand                          ResponseCode = 2101
+	CodeUnimplementedOption                           ResponseCode = 2102
+	CodeUnimplementedExtension                        ResponseCode = 2103
+	CodeBillingFailure                                ResponseCode = 2104
+	CodeObjectIsNotEligibleForRenewal                 ResponseCode = 2105
+	CodeObjectIsNotEligibleForTransfer                ResponseCode = 2106
+	CodeAuthenticationError                           ResponseCode = 2200
+	CodeAuthorizationError                            ResponseCode = 2201
+	CodeInvalidAuthorizationInformation               ResponseCode = 2202
+	CodeObjectPendingTransfer                         ResponseCode = 2300
+	CodeObjectNotPendingTransfer                      ResponseCode = 2301
+	CodeObjectExists                                  ResponseCode = 2302
+	CodeObjectDoesNotExist                            ResponseCode = 2303
+	CodeObjectStatusProhibitsOperation                ResponseCode = 2304
+	CodeObjectAssociationProhibitsOperation           ResponseCode = 2305
+	CodeParameterValuePolicyError                     ResponseCode = 2306
+	CodeUnimplementedObjectService                    ResponseCode = 2307
+	CodeDataManagementPolicyViolation                 ResponseCode = 2308
+	CodeCommandFailed                                 ResponseCode = 2400
+	CodeCommandFailedServerClosingConnection          ResponseCode = 2500
+	CodeAuthenticationErrorServerClosingConnection    ResponseCode = 2501
+	CodeSessionLimitExceededServerClosingConnection   ResponseCode = 2502
+)
+
 const (
 	XmlHeader = `<?xml version="1.0" encoding="UTF-8" standalone="no"?>`
 
@@ -39,82 +78,89 @@ const (
 	SessionLimitExceededServerClosingConnection   = "Session limit exceeded; server closing connection"
 )
 
-func AnyError(code int, msg string) *EPPResponse[struct{}, struct{}] {
+func AnyError(code ResponseCode, msg string) *EPPResponse[struct{}, struct{}] {
 	return NewResponse[struct{}, struct{}](code, msg)
 }
 
 //nolint:gocyclo,cyclop
-func defaultMessage(code int) string {
+func MessageForCode(code ResponseCode) string {
 	// see https://datatracker.ietf.org/doc/html/rfc5730#section-3
 	switch code {
-	case 1000:
+	case CodeCommandCompletedSuccessfully:
 		return CommandCompletedSuccessfully
-	case 1001:
+	case CodeCommandCompletedSuccessfullyWithActionPending:
 		return CommandCompletedSuccessfullyWithActionPending
-	case 1300:
+	case CodeCommandCompleteSuccessfullyWithNoMessages:
 		return CommandCompleteSuccessfullyWithNoMessages
-	case 1301:
+	case CodeCommandCompleteSuccessfullyAckToDequeue:
 		return CommandCompleteSuccessfullyAckToDequeue
-	case 1500:
+	case CodeCommandCompleteSuccessfullyEndingSession:
 		return CommandCompleteSuccessfullyEndingSession
-	case 2000:
+
+	case CodeUnknownCommand:
 		return UnknownCommand
-	case 2001:
+	case CodeCommandSyntaxError:
 		return CommandSyntaxError
-	case 2002:
+	case CodeCommandUseError:
 		return CommandUseError
-	case 2003:
+	case CodeRequiredParameterMissing:
 		return RequiredParameterMissing
-	case 2004:
+	case CodeParameterValueRangeError:
 		return ParameterValueRangeError
-	case 2005:
+	case CodeParameterValueSyntaxError:
 		return ParameterValueSyntaxError
-	case 2100:
+
+	case CodeUnimplementedProtocolVersion:
 		return UnimplementedProtocolVersion
-	case 2101:
+	case CodeUnimplementedCommand:
 		return UnimplementedCommand
-	case 2102:
+	case CodeUnimplementedOption:
 		return UnimplementedOption
-	case 2103:
+	case CodeUnimplementedExtension:
 		return UnimplementedExtension
-	case 2104:
+	case CodeBillingFailure:
 		return BillingFailure
-	case 2105:
+	case CodeObjectIsNotEligibleForRenewal:
 		return ObjectIsNotEligibleForRenewal
-	case 2106:
+	case CodeObjectIsNotEligibleForTransfer:
 		return ObjectIsNotEligibleForTransfer
-	case 2200:
+
+	case CodeAuthenticationError:
 		return AuthenticationError
-	case 2201:
+	case CodeAuthorizationError:
 		return AuthorizationError
-	case 2202:
+	case CodeInvalidAuthorizationInformation:
 		return InvalidAuthorizationInformation
-	case 2300:
+
+	case CodeObjectPendingTransfer:
 		return ObjectPendingTransfer
-	case 2301:
+	case CodeObjectNotPendingTransfer:
 		return ObjectNotPendingTransfer
-	case 2302:
+	case CodeObjectExists:
 		return ObjectExists
-	case 2303:
+	case CodeObjectDoesNotExist:
 		return ObjectDoesNotExist
-	case 2304:
+	case CodeObjectStatusProhibitsOperation:
 		return ObjectStatusProhibitsOperation
-	case 2305:
+	case CodeObjectAssociationProhibitsOperation:
 		return ObjectAssociationProhibitsOperation
-	case 2306:
+	case CodeParameterValuePolicyError:
 		return ParameterValuePolicyError
-	case 2307:
+	case CodeUnimplementedObjectService:
 		return UnimplementedObjectService
-	case 2308:
+	case CodeDataManagementPolicyViolation:
 		return DataManagementPolicyViolation
-	case 2400:
+
+	case CodeCommandFailed:
 		return CommandFailed
-	case 2500:
+
+	case CodeCommandFailedServerClosingConnection:
 		return CommandFailedServerClosingConnection
-	case 2501:
+	case CodeAuthenticationErrorServerClosingConnection:
 		return AuthenticationErrorServerClosingConnection
-	case 2502:
+	case CodeSessionLimitExceededServerClosingConnection:
 		return SessionLimitExceededServerClosingConnection
+
 	default:
 		return "Unknown code"
 	}
