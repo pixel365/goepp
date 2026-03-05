@@ -2,6 +2,15 @@ package response
 
 type ResponseCode int
 
+func (c ResponseCode) String() string {
+	return MessageForCode(c)
+}
+
+func (c ResponseCode) Ok() bool {
+	return c >= CodeCommandCompletedSuccessfully &&
+		c <= CodeCommandCompleteSuccessfullyEndingSession
+}
+
 const (
 	CodeCommandCompletedSuccessfully                  ResponseCode = 1000
 	CodeCommandCompletedSuccessfullyWithActionPending ResponseCode = 1001
