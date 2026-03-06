@@ -1,6 +1,7 @@
 package update
 
 import (
+	"encoding/xml"
 	"errors"
 	"strings"
 
@@ -28,28 +29,88 @@ type ContactChange struct {
 	Fax        *string             `xml:"fax,omitempty"`
 	Email      *string             `xml:"email,omitempty"`
 	AuthInfo   *command.AuthInfo   `xml:"authInfo,omitempty"`
-	Disclosure *Disclosure         `xml:"disclose,omitempty"`
+	Disclosure *Disclose           `xml:"disclose,omitempty"`
 	PostalInfo []create.PostalInfo `xml:"postalInfo,omitempty"`
+}
+
+type contactChangeXML struct {
+	Voice      *string                `xml:"voice,omitempty"`
+	Fax        *string                `xml:"fax,omitempty"`
+	Email      *string                `xml:"email,omitempty"`
+	AuthInfo   *command.AuthInfo      `xml:"authInfo,omitempty"`
+	Disclose   *Disclose              `xml:"disclose,omitempty"`
+	PostalInfo []contactPostalInfoXML `xml:"postalInfo,omitempty"`
+}
+
+type contactPostalInfoXML struct {
+	Type create.PostalInfoType `xml:"type,attr"`
+	Name string                `xml:"name"`
+	Org  string                `xml:"org,omitempty"`
+	Addr contactAddrXML        `xml:"addr"`
+}
+
+type contactAddrXML struct {
+	City   string   `xml:"city"`
+	Sp     string   `xml:"sp,omitempty"`
+	Pc     string   `xml:"pc,omitempty"`
+	Cc     string   `xml:"cc"`
+	Street []string `xml:"street,omitempty"`
 }
 
 type ContactStatus struct {
 	Value string `xml:"s,attr"`
 }
 
-type Disclosure struct {
-	Fields []DisclosureElement `xml:",any,omitempty"`
-	Flag   bool                `xml:"flag,attr"`
+type Disclose struct {
+	Fields []DiscloseElement `xml:",any,omitempty"`
+	Flag   bool              `xml:"flag,attr"`
 }
 
-type DisclosureElement struct {
+type DiscloseElement struct {
 	XMLName struct{} `xml:"-"`
 	Type    string   `xml:"type,attr,omitempty"`
 	Value   string   `xml:",chardata"`
 }
 
+func (c *ContactChange) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
+	var x contactChangeXML
+	if err := d.DecodeElement(&x, &start); err != nil {
+		return err
+	}
+
+	c.Voice = x.Voice
+	c.Fax = x.Fax
+	c.Email = x.Email
+	c.AuthInfo = x.AuthInfo
+	c.Disclosure = x.Disclose
+	c.PostalInfo = nil
+
+	if len(x.PostalInfo) == 0 {
+		return nil
+	}
+
+	c.PostalInfo = make([]create.PostalInfo, 0, len(x.PostalInfo))
+	for i := range x.PostalInfo {
+		c.PostalInfo = append(c.PostalInfo, create.PostalInfo{
+			Type: x.PostalInfo[i].Type,
+			Name: x.PostalInfo[i].Name,
+			Org:  x.PostalInfo[i].Org,
+			Addr: create.ContactAddr{
+				City:   x.PostalInfo[i].Addr.City,
+				Sp:     x.PostalInfo[i].Addr.Sp,
+				Pc:     x.PostalInfo[i].Addr.Pc,
+				Cc:     x.PostalInfo[i].Addr.Cc,
+				Street: append([]string(nil), x.PostalInfo[i].Addr.Street...),
+			},
+		})
+	}
+
+	return nil
+}
+
 // Validate https://datatracker.ietf.org/doc/html/rfc5733#section-3.2.5
 func (c *ContactData) Validate() error {
-	if c.ID == "" {
+	if strings.TrimSpace(c.ID) == "" {
 		return errors.New("contact:id is required")
 	}
 
@@ -173,7 +234,7 @@ func (s ContactStatus) Validate() error {
 	return nil
 }
 
-func (d *Disclosure) Validate() error {
+func (d *Disclose) Validate() error {
 	if len(d.Fields) == 0 {
 		return errors.New("disclose:name, org, addr, voice, fax or email is required")
 	}

@@ -7,8 +7,8 @@ import (
 )
 
 type Update struct {
-	Domain  *DomainData
-	Contact *ContactData
+	Domain  *DomainData  `xml:"urn:ietf:params:xml:ns:domain-1.0 update"`
+	Contact *ContactData `xml:"urn:ietf:params:xml:ns:contact-1.0 update"`
 }
 
 func (u *Update) Name() command.CommandName {

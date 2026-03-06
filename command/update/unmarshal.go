@@ -9,6 +9,7 @@ import (
 
 func (u *Update) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 	u.Domain = nil
+	u.Contact = nil
 
 	var seen bool
 	var done bool
@@ -44,16 +45,23 @@ func (u *Update) handleToken(
 			return errors.New("exactly one update object must be present")
 		}
 
-		if t.Name.Space != command.NsDomain {
+		switch t.Name.Space {
+		case command.NsDomain:
+			var x DomainData
+			if err := d.DecodeElement(&x, &t); err != nil {
+				return err
+			}
+			u.Domain = &x
+		case command.NsContact:
+			var x ContactData
+			if err := d.DecodeElement(&x, &t); err != nil {
+				return err
+			}
+			u.Contact = &x
+		default:
 			return errors.New("unsupported <update> object namespace: " + t.Name.Space)
 		}
 
-		var x DomainData
-		if err := d.DecodeElement(&x, &t); err != nil {
-			return err
-		}
-
-		u.Domain = &x
 		*seen = true
 
 		return nil

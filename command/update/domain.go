@@ -2,6 +2,7 @@ package update
 
 import (
 	"errors"
+	"strings"
 
 	normalizer "github.com/pixel365/domain-normalizer"
 
@@ -51,7 +52,7 @@ type DomainStatus struct {
 
 // Validate https://datatracker.ietf.org/doc/html/rfc5731#section-3.2.5
 func (d *DomainData) Validate() error {
-	if d.Name == "" {
+	if strings.TrimSpace(d.Name) == "" {
 		return errors.New("domain:name is required")
 	}
 
@@ -61,6 +62,10 @@ func (d *DomainData) Validate() error {
 	}
 
 	d.Name = name.Normalized
+
+	if d.Add == nil && d.Remove == nil && d.Change == nil {
+		return errors.New("domain:add, rem or chg is required")
+	}
 
 	if d.Add != nil {
 		if err = d.Add.Validate(); err != nil {
@@ -96,7 +101,11 @@ func (a *DomainAdd) Validate() error {
 
 	if len(a.Contacts) > 0 {
 		for _, c := range a.Contacts {
-			if c.ID == "" {
+			if strings.TrimSpace(c.Type) == "" {
+				return errors.New("add:contact type is required")
+			}
+
+			if strings.TrimSpace(c.ID) == "" {
 				return errors.New("add:contact id is required")
 			}
 		}
@@ -104,7 +113,7 @@ func (a *DomainAdd) Validate() error {
 
 	if len(a.Statuses) > 0 {
 		for _, s := range a.Statuses {
-			if s.Value == "" {
+			if strings.TrimSpace(s.Value) == "" {
 				return errors.New("add:status value is required")
 			}
 		}
@@ -126,7 +135,11 @@ func (r *DomainRemove) Validate() error {
 
 	if len(r.Contacts) > 0 {
 		for _, c := range r.Contacts {
-			if c.ID == "" {
+			if strings.TrimSpace(c.Type) == "" {
+				return errors.New("rem:contact type is required")
+			}
+
+			if strings.TrimSpace(c.ID) == "" {
 				return errors.New("rem:contact id is required")
 			}
 		}
@@ -134,7 +147,7 @@ func (r *DomainRemove) Validate() error {
 
 	if len(r.Statuses) > 0 {
 		for _, s := range r.Statuses {
-			if s.Value == "" {
+			if strings.TrimSpace(s.Value) == "" {
 				return errors.New("rem:status value is required")
 			}
 		}
@@ -157,13 +170,13 @@ func (c *DomainChange) Validate() error {
 	return nil
 }
 
-func (ns NS) Validate() error {
+func (ns *NS) Validate() error {
 	if len(ns.Hosts) == 0 {
 		return errors.New("ns:hostObj is required")
 	}
 
 	for _, h := range ns.Hosts {
-		if h.Name == "" {
+		if strings.TrimSpace(h.Name) == "" {
 			return errors.New("ns:hostObj is empty")
 		}
 	}
