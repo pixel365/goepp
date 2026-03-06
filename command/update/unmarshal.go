@@ -10,6 +10,7 @@ import (
 func (u *Update) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 	u.Domain = nil
 	u.Contact = nil
+	u.Host = nil
 
 	var seen bool
 	var done bool
@@ -28,6 +29,7 @@ func (u *Update) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 	return nil
 }
 
+//nolint:gocognit
 func (u *Update) handleToken(
 	d *xml.Decoder,
 	tok xml.Token,
@@ -58,6 +60,12 @@ func (u *Update) handleToken(
 				return err
 			}
 			u.Contact = &x
+		case command.NsHost:
+			var x HostData
+			if err := d.DecodeElement(&x, &t); err != nil {
+				return err
+			}
+			u.Host = &x
 		default:
 			return errors.New("unsupported <update> object namespace: " + t.Name.Space)
 		}

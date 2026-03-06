@@ -9,6 +9,7 @@ import (
 type Update struct {
 	Domain  *DomainData  `xml:"urn:ietf:params:xml:ns:domain-1.0 update"`
 	Contact *ContactData `xml:"urn:ietf:params:xml:ns:contact-1.0 update"`
+	Host    *HostData    `xml:"urn:ietf:params:xml:ns:host-1.0 update"`
 }
 
 func (u *Update) Name() command.CommandName {
@@ -30,6 +31,10 @@ func (u *Update) Validate() error {
 		notNil++
 	}
 
+	if u.Host != nil {
+		notNil++
+	}
+
 	if notNil != 1 {
 		return errors.New("exactly one update command must be present")
 	}
@@ -44,6 +49,10 @@ func (u *Update) validate() error {
 
 	if u.Contact != nil {
 		return u.Contact.Validate()
+	}
+
+	if u.Host != nil {
+		return u.Host.Validate()
 	}
 
 	return nil

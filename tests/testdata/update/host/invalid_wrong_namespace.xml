@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<epp xmlns="urn:ietf:params:xml:ns:epp-1.0">
+    <command>
+        <update>
+            <x:update xmlns:x="urn:ietf:params:xml:ns:x-1.0">
+                <x:name>ns1.example.com</x:name>
+                <x:add>
+                    <x:addr ip="v4">192.0.2.2</x:addr>
+                </x:add>
+            </x:update>
+        </update>
+        <clTRID>UPD-HOST-INV-NS</clTRID>
+    </command>
+</epp>

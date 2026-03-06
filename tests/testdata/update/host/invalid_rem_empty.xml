@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<epp xmlns="urn:ietf:params:xml:ns:epp-1.0">
+    <command>
+        <update>
+            <host:update xmlns:host="urn:ietf:params:xml:ns:host-1.0">
+                <host:name>ns1.example.com</host:name>
+                <host:rem/>
+            </host:update>
+        </update>
+        <clTRID>UPD-HOST-INV-REM-EMPTY</clTRID>
+    </command>
+</epp>
