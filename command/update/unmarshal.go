@@ -48,7 +48,7 @@ func (u *Update) handleToken(
 			return errors.New("unsupported <update> object namespace: " + t.Name.Space)
 		}
 
-		var x Domain
+		var x DomainData
 		if err := d.DecodeElement(&x, &t); err != nil {
 			return err
 		}

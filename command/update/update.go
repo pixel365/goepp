@@ -7,7 +7,8 @@ import (
 )
 
 type Update struct {
-	Domain *Domain
+	Domain  *DomainData
+	Contact *ContactData
 }
 
 func (u *Update) Name() command.CommandName {
@@ -19,13 +20,31 @@ func (u *Update) NeedAuth() bool {
 }
 
 func (u *Update) Validate() error {
-	if u.Domain == nil {
-		return errors.New("exactly one update object must be present")
+	var notNil uint8
+
+	if u.Domain != nil {
+		notNil++
 	}
 
-	if u.Domain.Add == nil && u.Domain.Remove == nil && u.Domain.Change == nil {
-		return errors.New("at least one update object must be present")
+	if u.Contact != nil {
+		notNil++
 	}
 
-	return u.Domain.Validate()
+	if notNil != 1 {
+		return errors.New("exactly one update command must be present")
+	}
+
+	return u.validate()
+}
+
+func (u *Update) validate() error {
+	if u.Domain != nil {
+		return u.Domain.Validate()
+	}
+
+	if u.Contact != nil {
+		return u.Contact.Validate()
+	}
+
+	return nil
 }

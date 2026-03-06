@@ -3,6 +3,7 @@ package create
 import (
 	"encoding/xml"
 	"errors"
+	"strings"
 
 	"github.com/pixel365/goepp/command"
 )
@@ -141,30 +142,44 @@ func (c *Contact) Validate() error {
 	return nil
 }
 
+func (p *PostalInfo) Validate() error {
+	if p.Type != Loc && p.Type != Int {
+		return errors.New("contact:postalInfo type must be loc or int")
+	}
+
+	if strings.TrimSpace(p.Name) == "" {
+		return errors.New("contact:postalInfo/contact:name is required")
+	}
+
+	if strings.TrimSpace(p.Addr.City) == "" {
+		return errors.New("contact:postalInfo/contact:addr/contact:city is required")
+	}
+
+	if strings.TrimSpace(p.Addr.Cc) == "" {
+		return errors.New("contact:postalInfo/contact:addr/contact:cc is required")
+	}
+
+	if len(p.Addr.Cc) != 2 {
+		return errors.New("contact:postalInfo/contact:addr/contact:cc must be 2 chars")
+	}
+
+	if len(p.Addr.Street) > 3 {
+		return errors.New("contact:postalInfo/contact:addr/contact:street max is 3")
+	}
+
+	for _, s := range p.Addr.Street {
+		if strings.TrimSpace(s) == "" {
+			return errors.New("contact:postalInfo/contact:addr/contact:street is empty")
+		}
+	}
+
+	return nil
+}
+
 func (c *Contact) validatePostInfo() error {
 	for i := range c.PostalInfo {
-		if c.PostalInfo[i].Type != Loc && c.PostalInfo[i].Type != Int {
-			return errors.New("contact:postalInfo type must be loc or int")
-		}
-
-		if c.PostalInfo[i].Name == "" {
-			return errors.New("contact:postalInfo/contact:name is required")
-		}
-
-		if c.PostalInfo[i].Addr.City == "" {
-			return errors.New("contact:postalInfo/contact:addr/contact:city is required")
-		}
-
-		if c.PostalInfo[i].Addr.Cc == "" {
-			return errors.New("contact:postalInfo/contact:addr/contact:cc is required")
-		}
-
-		if len(c.PostalInfo[i].Addr.Cc) != 2 {
-			return errors.New("contact:postalInfo/contact:addr/contact:cc must be 2 chars")
-		}
-
-		if len(c.PostalInfo[i].Addr.Street) > 3 {
-			return errors.New("contact:postalInfo/contact:addr/contact:street max is 3")
+		if err := c.PostalInfo[i].Validate(); err != nil {
+			return err
 		}
 	}
 

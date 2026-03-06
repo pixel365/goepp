@@ -8,26 +8,26 @@ import (
 	"github.com/pixel365/goepp/command"
 )
 
-type Domain struct {
-	Add    *Add    `xml:"add,omitempty"`
-	Remove *Remove `xml:"rem,omitempty"`
-	Change *Change `xml:"chg,omitempty"`
+type DomainData struct {
+	Add    *DomainAdd    `xml:"add,omitempty"`
+	Remove *DomainRemove `xml:"rem,omitempty"`
+	Change *DomainChange `xml:"chg,omitempty"`
 	command.DomainRef
 }
 
-type Add struct {
-	NS       *NS       `xml:"ns,omitempty"`
-	Contacts []Contact `xml:"contact,omitempty"`
-	Statuses []Status  `xml:"status,omitempty"`
+type DomainAdd struct {
+	NS       *NS             `xml:"ns,omitempty"`
+	Contacts []DomainContact `xml:"contact,omitempty"`
+	Statuses []DomainStatus  `xml:"status,omitempty"`
 }
 
-type Remove struct {
-	NS       *NS       `xml:"ns,omitempty"`
-	Contacts []Contact `xml:"contact,omitempty"`
-	Statuses []Status  `xml:"status,omitempty"`
+type DomainRemove struct {
+	NS       *NS             `xml:"ns,omitempty"`
+	Contacts []DomainContact `xml:"contact,omitempty"`
+	Statuses []DomainStatus  `xml:"status,omitempty"`
 }
 
-type Change struct {
+type DomainChange struct {
 	Registrant *string           `xml:"registrant,omitempty"`
 	AuthInfo   *command.AuthInfo `xml:"authInfo,omitempty"`
 }
@@ -40,17 +40,17 @@ type HostObject struct {
 	Name string `xml:",chardata"`
 }
 
-type Contact struct {
+type DomainContact struct {
 	ID   string `xml:",chardata"`
 	Type string `xml:"type,attr"`
 }
 
-type Status struct {
+type DomainStatus struct {
 	Value string `xml:"s,attr"`
 }
 
 // Validate https://datatracker.ietf.org/doc/html/rfc5731#section-3.2.5
-func (d *Domain) Validate() error {
+func (d *DomainData) Validate() error {
 	if d.Name == "" {
 		return errors.New("domain:name is required")
 	}
@@ -83,7 +83,7 @@ func (d *Domain) Validate() error {
 	return nil
 }
 
-func (a *Add) Validate() error {
+func (a *DomainAdd) Validate() error {
 	if a.NS == nil && len(a.Contacts) == 0 && len(a.Statuses) == 0 {
 		return errors.New("add:ns, contact or status is required")
 	}
@@ -113,7 +113,7 @@ func (a *Add) Validate() error {
 	return nil
 }
 
-func (r *Remove) Validate() error {
+func (r *DomainRemove) Validate() error {
 	if r.NS == nil && len(r.Contacts) == 0 && len(r.Statuses) == 0 {
 		return errors.New("rem:ns, contact or status is required")
 	}
@@ -143,7 +143,7 @@ func (r *Remove) Validate() error {
 	return nil
 }
 
-func (c *Change) Validate() error {
+func (c *DomainChange) Validate() error {
 	if c.Registrant == nil && c.AuthInfo == nil {
 		return errors.New("change:registrant or/and authInfo is required")
 	}
